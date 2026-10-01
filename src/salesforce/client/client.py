@@ -52,7 +52,8 @@ class Client:
       res = self._http.request(
         method,
         url,
-        headers={"Authorization": f"Bearer {self.session.access_token}"},
+        headers={"Authorization": f"Bearer {self.session.access_token}"}
+        | kwargs.pop("headers", {}),
         **kwargs,
       )
       if res.status_code != 401 or attempt == 2:
@@ -74,6 +75,9 @@ class Client:
 
   def post(self, end_point: str, **kwargs) -> dict:
     return self.request("POST", end_point, **kwargs).json()
+
+  def put(self, end_point: str, **kwargs) -> None:
+    self.request("PUT", end_point, **kwargs)
 
   def patch(self, end_point: str, **kwargs) -> None:
     # PATCH returns 204 No Content on success; nothing to parse.

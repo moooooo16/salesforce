@@ -78,3 +78,20 @@ print(results)
 
 # sf.process.approvals()
 # sf.process.submit([{"actionType": "Submit", "contextId": "001xx...", "comments": "ok"}])
+
+# ---------------------------------------------------------------------------
+# 7. Bulk API 2.0 - for large data loads
+# ---------------------------------------------------------------------------
+
+records = [{"Name": f"Bulk Co {i}"} for i in range(5)]
+job = sf.bulk.insert("Account", records)
+print(job["state"], job["numberRecordsProcessed"])
+
+# Per-record results (CSV text):
+# print(sf.bulk.successful_results(job["id"]))
+# print(sf.bulk.failed_results(job["id"]))
+
+# update / upsert / delete work the same way:
+# sf.bulk.update("Account", [{"Id": "001xx...", "Phone": "416..."}])
+# sf.bulk.upsert("Account", records, external_id_field="External_Id__c")
+# sf.bulk.delete("Account", [{"Id": "001xx..."}])

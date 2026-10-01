@@ -5,6 +5,7 @@ from functools import cached_property
 
 from salesforce.client.client import Client
 from salesforce.service import (
+  BulkService,
   EventService,
   ProcessService,
   QueryService,
@@ -31,6 +32,10 @@ class Salesforce:
   @cached_property
   def query(self) -> QueryService:
     return QueryService(self.client)
+
+  @cached_property
+  def bulk(self) -> BulkService:
+    return BulkService(self.client)
 
   @cached_property
   def search(self) -> SearchService:
