@@ -21,36 +21,38 @@ def _to_csv(records: list[dict[str, Any]]) -> str:
 
 @dataclass
 class BulkService(Service):
-  """Bulk API 2.0 ingest jobs. URI: /services/data/vXX.X/jobs/ingest"""
+  """Bulk API 2.0 ingest jobs for one SObject type.
+
+  URI: /services/data/vXX.X/jobs/ingest
+  """
 
   space: ClassVar[str] = "/jobs/ingest"
 
-  def insert(self, sobject: str, records: list[dict[str, Any]], **kwargs) -> dict:
+  name: str
+
+  def insert(self, records: list[dict[str, Any]], **kwargs) -> dict:
     """Bulk insert records, returning the final job info.
 
     Example:
-        bulk.insert("Account", [{"Name": "A"}, {"Name": "B"}]) -> {"state": "JobComplete", ...}
+        bulk.insert([{"Name": "A"}, {"Name": "B"}]) -> {"state": "JobComplete", ...}
     """
-    return self._run("insert", sobject, records, **kwargs)
+    return self._run("insert", records, **kwargs)
 
-  def update(self, sobject: str, records: list[dict[str, Any]], **kwargs) -> dict:
+  def update(self, records: list[dict[str, Any]], **kwargs) -> dict:
     """Bulk update records; each record must include Id."""
-    return self._run("update", sobject, records, **kwargs)
+    return self._run("update", records, **kwargs)
 
-  def upsert(
-    self, sobject: str, records: list[dict[str, Any]], external_id_field: str, **kwargs
-  ) -> dict:
+  def upsert(self, records: list[dict[str, Any]], external_id_field: str, **kwargs) -> dict:
     """Bulk upsert records matched on an external ID field."""
-    return self._run("upsert", sobject, records, external_id_field=external_id_field, **kwargs)
+    return self._run("upsert", records, external_id_field=external_id_field, **kwargs)
 
-  def delete(self, sobject: str, records: list[dict[str, Any]], **kwargs) -> dict:
+  def delete(self, records: list[dict[str, Any]], **kwargs) -> dict:
     """Bulk delete records; each record must include Id."""
-    return self._run("delete", sobject, records, **kwargs)
+    return self._run("delete", records, **kwargs)
 
   def _run(
     self,
     operation: str,
-    sobject: str,
     records: list[dict[str, Any]],
     external_id_field: str | None = None,
     poll_interval: float = 2.0,
@@ -60,7 +62,7 @@ class BulkService(Service):
       raise ValueError("records must not be empty")
 
     payload: dict[str, Any] = {
-      "object": sobject,
+      "object": self.name,
       "operation": operation,
       "contentType": "CSV",
       "lineEnding": "LF",

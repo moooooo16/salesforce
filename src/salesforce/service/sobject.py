@@ -45,6 +45,14 @@ class SObjectService(Service):
     """Update a record."""
     self.client.patch(self.url(f"/{self.name}/{record_id}"), json=data)
 
+  def upsert(self, external_id_field: str, value: str, data: dict[str, Any]) -> None:
+    """Insert or update a record matched by an external ID field.
+
+    Example:
+        sobject.upsert("External_Id__c", "ERP-1001", {"Name": "Acme"})
+    """
+    self.client.patch(self.url(f"/{self.name}/{external_id_field}/{value}"), json=data)
+
   def delete(self, record_id: str) -> None:
     """Delete a record."""
     self.client.delete(self.url(f"/{self.name}/{record_id}"))

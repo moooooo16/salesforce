@@ -6,7 +6,9 @@ from functools import cached_property
 from salesforce.client.client import Client
 from salesforce.service import (
   BulkService,
+  CollectionService,
   EventService,
+  InfoService,
   ProcessService,
   QueryService,
   SearchService,
@@ -33,9 +35,25 @@ class Salesforce:
   def query(self) -> QueryService:
     return QueryService(self.client)
 
+  def bulk(self, name: str) -> BulkService:
+    """Get a bulk-load service for one SObject type.
+
+    Example:
+        sf.bulk("Account").insert([{"Name": "Acme"}])
+    """
+    return BulkService(self.client, name)
+
+  def collections(self, name: str) -> CollectionService:
+    """Get a batch CRUD service for one SObject type (up to 200 records per call).
+
+    Example:
+        sf.collections("Account").insert([{"Name": "Acme"}])
+    """
+    return CollectionService(self.client, name)
+
   @cached_property
-  def bulk(self) -> BulkService:
-    return BulkService(self.client)
+  def info(self) -> InfoService:
+    return InfoService(self.client)
 
   @cached_property
   def search(self) -> SearchService:

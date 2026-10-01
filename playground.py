@@ -55,6 +55,24 @@ print(record)
 account.update(created["id"], {"Phone": "416-555-0100"})
 account.delete(created["id"])
 
+# Upsert by external ID field (insert or update in one call):
+# account.upsert("External_Id__c", "ERP-1001", {"Name": "Acme"})
+
+# ---------------------------------------------------------------------------
+# 3b. Collections: batch up to 200 records per call
+# ---------------------------------------------------------------------------
+
+# sf.collections("Account").insert([{"Name": "A"}, {"Name": "B"}])
+# sf.collections("Account").update([{"Id": "001xx...", "Phone": "416..."}])
+# sf.collections("Account").delete(["001xx...", "001yy..."])
+
+# ---------------------------------------------------------------------------
+# 3c. Org info
+# ---------------------------------------------------------------------------
+
+# sf.info.describe_global()   # all SObjects in this org
+# sf.info.limits()            # API quota usage
+
 # Metadata:
 # account.metadata()   # basic info + recent items
 # account.describe()   # full field/layout metadata
@@ -84,14 +102,14 @@ print(results)
 # ---------------------------------------------------------------------------
 
 records = [{"Name": f"Bulk Co {i}"} for i in range(5)]
-job = sf.bulk.insert("Account", records)
+job = sf.bulk("Account").insert(records)
 print(job["state"], job["numberRecordsProcessed"])
 
 # Per-record results (CSV text):
-# print(sf.bulk.successful_results(job["id"]))
-# print(sf.bulk.failed_results(job["id"]))
+# print(sf.bulk("Account").successful_results(job["id"]))
+# print(sf.bulk("Account").failed_results(job["id"]))
 
 # update / upsert / delete work the same way:
-# sf.bulk.update("Account", [{"Id": "001xx...", "Phone": "416..."}])
-# sf.bulk.upsert("Account", records, external_id_field="External_Id__c")
-# sf.bulk.delete("Account", [{"Id": "001xx..."}])
+# sf.bulk("Account").update([{"Id": "001xx...", "Phone": "416..."}])
+# sf.bulk("Account").upsert(records, external_id_field="External_Id__c")
+# sf.bulk("Account").delete([{"Id": "001xx..."}])
