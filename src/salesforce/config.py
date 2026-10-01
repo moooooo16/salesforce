@@ -24,6 +24,7 @@ class Settings(BaseSettings):
   )
   client_id: str
   domain_url: UrlStr
+  api_version: str
 
 
 class ClientCredentialsSettings(Settings):

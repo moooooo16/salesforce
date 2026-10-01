@@ -9,7 +9,7 @@ from typing import ClassVar
 
 import httpx
 import jwt
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from salesforce.config import ClientCredentialsSettings, JWTSettings, Settings
 from salesforce.exception import AuthenticationError, UnknownFlowError
@@ -30,6 +30,7 @@ class Session(BaseModel):
 class AuthStrategy(ABC):
   registry: ClassVar[dict[str, type[AuthStrategy]]] = {}
   name: ClassVar[str | None] = None
+  auth_endpoint: str = "services/oauth2/token"
   settings: Settings
 
   def __init_subclass__(cls, **kwargs: object) -> None:
@@ -64,7 +65,12 @@ class AuthStrategy(ABC):
     body = res.json()
 
     logger.info("Auth: Token Obtained")
-    return Session(**body)
+    try:
+      s = Session(**body)
+    except ValidationError as exc:
+      raise AuthenticationError(f"Auth: body return incorrect format: {body}") from exc
+
+    return s
 
 
 @dataclass
